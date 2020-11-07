@@ -1,10 +1,7 @@
 using System;
 using MonoTouch.Dialog;
 
-using Foundation;
-using CoreGraphics;
 using UIKit;
-
 using ZXing;
 using ZXing.Mobile;
 using System.Collections.Generic;
@@ -25,23 +22,27 @@ namespace Sample.iOS
 			//Create a new instance of our scanner
 			scanner = new MobileBarcodeScanner(this.NavigationController);
 
-			Root = new RootElement("ZXing.Net.Mobile") {
+			Root = new RootElement("ZXing.Net.Mobile")
+            {
 				new Section {
+                    new StyledStringElement("Scan with Default View", async () =>
+                    {
+                        //Tell our scanner to use the default overlay
+                        scanner.UseCustomOverlay = false;
+                        //We can customize the top and bottom text of the default overlay
+                        scanner.TopText = "Hold camera up to barcode to scan";
+                        scanner.BottomText = "Barcode will automatically scan";
 
-					new StyledStringElement ("Scan with Default View", async () => {
-						//Tell our scanner to use the default overlay
-						scanner.UseCustomOverlay = false;
-						//We can customize the top and bottom text of the default overlay
-						scanner.TopText = "Hold camera up to barcode to scan";
-						scanner.BottomText = "Barcode will automatically scan";
+                        //Start scanning
+                        var result = await scanner.Scan(new MobileBarcodeScanningOptions
+                        {
+                            ScanningArea = ScanningArea.From(0f, 0.3f, 1f, 0.7f)
+                        });
 
-						//Start scanning
-						var result = await scanner.Scan ();
-
-						HandleScanResult(result);
-					}),
-
-					new StyledStringElement ("Scan Continuously", () => {
+                        HandleScanResult(result);
+                    }),
+                    new StyledStringElement("Scan with Default View using laser point", async () =>
+                    {
 						//Tell our scanner to use the default overlay
 						scanner.UseCustomOverlay = false;
 
@@ -50,7 +51,11 @@ namespace Sample.iOS
 						scanner.CustomOverlay = customOverlay;
 
 
-						var opt = new MobileBarcodeScanningOptions ();
+						var opt = new MobileBarcodeScanningOptions
+                        {
+                            ScanningArea = ScanningArea.From(0f, 0.49f, 1f, 0.51f)
+                        };
+
 						opt.DelayBetweenContinuousScans = 3000;
 
 						//Start scanning
